@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>내 트레이닝</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: #0A0A0A; color: #fff; font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; max-width: 500px; margin: 0 auto; padding-bottom: 90px; }
+
+  /* Header */
+  .header { padding: 20px 20px 0; position: sticky; top: 0; background: #0A0A0A; z-index: 100; }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .header-sub { font-size: 10px; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
+  .header-title { font-size: 21px; font-weight: 900; letter-spacing: -0.5px; }
+  .header-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+
+  /* Tab bar */
+  .tabbar { display: flex; background: rgba(255,255,255,0.07); border-radius: 12px; padding: 3px; margin-bottom: 16px; }
+  .tabbar button { flex: 1; padding: 10px 4px; border-radius: 10px; border: none; cursor: pointer; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; font-weight: 600; transition: all 0.2s; }
+  .tabbar button.active { background: #fff; color: #000; }
+  .tabbar button.inactive { background: transparent; color: #666; }
+
+  /* Content */
+  .content { padding: 0 20px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Day selector */
+  .day-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; scrollbar-width: none; }
+  .day-scroll::-webkit-scrollbar { display: none; }
+  .day-btn { flex-shrink: 0; padding: 8px 12px; border-radius: 10px; border: 1px solid transparent; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; text-align: center; min-width: 52px; transition: all 0.15s; }
+  .day-btn .day-name { font-weight: 700; }
+  .day-btn .day-date { font-size: 10px; opacity: 0.7; margin-top: 2px; }
+
+  /* Plan card */
+  .plan-card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }
+  .plan-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 2px 10px; border-radius: 20px; margin-right: 8px; }
+  .gym-name { font-size: 12px; color: #888; }
+  .prog-num { font-size: 26px; font-weight: 900; }
+  .prog-sub { font-size: 11px; color: #666; text-align: right; }
+  .prog-bar-bg { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 10px; }
+  .prog-bar { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+  /* Exercise rows */
+  .ex-row { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin-bottom: 8px; overflow: hidden; transition: all 0.2s; }
+  .ex-row.done { background: rgba(200,255,0,0.07); border-color: rgba(200,255,0,0.25); }
+  .ex-header { display: flex; align-items: center; padding: 13px 14px; gap: 12px; cursor: pointer; }
+  .check-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; cursor: pointer; }
+  .check-box.checked { background: #C8FF00; border-color: #C8FF00; }
+  .check-mark { color: #000; font-size: 13px; font-weight: 900; }
+  .ex-name { font-size: 14px; font-weight: 600; }
+  .ex-name.done-text { color: #C8FF00; }
+  .ex-meta { font-size: 12px; color: #888; margin-top: 2px; }
+  .ex-arrow { color: #555; font-size: 11px; margin-left: auto; }
+  .ex-detail { padding: 0 14px 12px; border-top: 1px solid rgba(255,255,255,0.06); display: none; }
+  .ex-detail.open { display: block; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .detail-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  input[type=number], textarea, input[type=text] { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 9px 10px; color: #fff; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; outline: none; }
+  textarea { resize: none; }
+
+  /* WOD memo */
+  .wod-memo { margin-top: 12px; }
+  .wod-label { font-size: 13px; color: #888; margin-bottom: 6px; }
+
+  /* Stats grid */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+  .stat-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px 10px; text-align: center; }
+  .stat-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .stat-val { font-size: 22px; font-weight: 900; }
+  .stat-unit { font-size: 10px; color: #666; margin-top: 2px; }
+
+  /* Body form */
+  .form-card { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 18px; margin-bottom: 18px; }
+  .form-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+  .form-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+  /* Save button */
+  .save-btn { width: 100%; padding: 13px; border-radius: 10px; font-weight: 800; font-size: 15px; border: none; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all 0.2s; }
+
+  /* Macro bars */
+  .macro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .macro-card { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px; }
+  .macro-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .macro-label { font-size: 12px; color: #888; }
+  .macro-val { font-size: 13px; font-weight: 700; }
+  .bar-bg { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .macro-goal { font-size: 10px; color: #555; margin-top: 4px; }
+
+  /* Food chips */
+  .food-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .food-chip { padding: 7px 13px; border-radius: 20px; font-size: 12px; border: none; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; }
+
+  /* History list */
+  .hist-item { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .hist-date { font-size: 12px; color: #888; }
+  .hist-vals { display: flex; gap: 12px; }
+
+  /* Section title */
+  .sec-title { font-size: 13px; color: #888; margin-bottom: 8px; margin-top: 4px; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #C8FF00; color: #000; padding: 10px 22px; border-radius: 20px; font-weight: 800; font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+  #toast.show { opacity: 1; }
+
+  /* Diet today items */
+  .diet-item { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+  .diet-item-name { font-size: 13px; color: #ddd; }
+  .diet-item-stats { font-size: 12px; }
+
+  /* Golf note */
+  .golf-note { background: rgba(78,205,196,0.1); border: 1px solid rgba(78,205,196,0.2); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: #4ECDC4; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-sub">CROSSFIT MAGNUM × 홈짐</div>
+      <div class="header-title" id="main-title">내 트레이닝 <span id="today-day-label" style="color:#C8FF00"></span></div>
+    </div>
+    <div class="header-icon" id="today-icon" style="background:#C8FF00"></div>
+  </div>
+  <div class="tabbar">
+    <button class="active" onclick="switchTab('workout')">🏋️ 운동</button>
+    <button class="inactive" onclick="switchTab('body')">📊 인바디</button>
+    <button class="inactive" onclick="switchTab('diet')">🍱 식단</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ── WORKOUT TAB ── -->
+  <div id="tab-workout" class="tab-panel active">
+    <div class="day-scroll" id="day-scroll"></div>
+    <div id="plan-card"></div>
+    <div id="exercise-list"></div>
+    <div id="wod-section"></div>
+  </div>
+
+  <!-- ── BODY TAB ── -->
+  <div id="tab-body" class="tab-panel">
+    <div class="stats-grid" id="body-stats"></div>
+    <div class="form-card">
+      <div class="form-title">📊 오늘 기록 — <span id="body-date"></span></div>
+      <div class="form-grid3">
+        <div><div class="detail-label">체중 (kg)</div><input type="number" id="inp-weight" placeholder="0" step="0.1"></div>
+        <div><div class="detail-label">체지방 (%)</div><input type="number" id="inp-fat" placeholder="0" step="0.1"></div>
+        <div><div class="detail-label">근육량 (kg)</div><input type="number" id="inp-muscle" placeholder="0" step="0.1"></div>
+      </div>
+      <textarea id="inp-body-note" placeholder="컨디션, 메모..." rows="2" style="margin-bottom:12px"></textarea>
+      <button class="save-btn" style="background:#C8FF00;color:#000" onclick="saveBodyLog()">저장하기</button>
+    </div>
+    <div class="sec-title">기록 히스토리</div>
+    <div id="body-history"></div>
+  </div>
+
+  <!-- ── DIET TAB ── -->
+  <div id="tab-diet" class="tab-panel">
+    <div class="form-card" style="margin-bottom:14px">
+      <div class="form-title" style="margin-bottom:12px">오늘 섭취 현황 <span id="diet-date" style="font-size:12px;font-weight:400;color:#888"></span></div>
+      <div class="macro-grid" id="macro-display"></div>
+    </div>
+    <div class="sec-title">편의점 식품 추가</div>
+    <div class="food-chips" id="food-chips"></div>
+    <button class="save-btn" id="diet-save-btn" style="background:#C8FF00;color:#000;margin-bottom:16px;display:none" onclick="saveDietItems()">추가하기</button>
+    <div id="diet-today-items"></div>
+  </div>
+
+</div>
+
+<div id="toast">✓ 저장됐어요!</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const PLAN = {
+  월: { type:"crossfit", label:"CrossFit", color:"#C8FF00", textColor:"#000", gym:"CrossFit Magnum", icon:"⚡",
+    exercises:[
+      { id:"cf_m1", name:"Oly / Strength / Skill", sets:1, reps:"30분", note:"06:30~07:00 / 17:00~17:30 / 19:30~20:00" },
+      { id:"cf_m2", name:"CrossFit WOD", sets:1, reps:"60분", note:"07:00~08:00 / 17:30~18:30 / 20:00~21:00" },
+    ]},
+  화: { type:"push", label:"Push Day", color:"#FF6B35", textColor:"#fff", gym:"홈짐", icon:"💪",
+    exercises:[
+      { id:"p1", name:"바벨 벤치프레스 (스미스)", sets:4, reps:"8~10" },
+      { id:"p2", name:"인클라인 덤벨 프레스", sets:3, reps:"10~12" },
+      { id:"p3", name:"케이블 플라이 (상부)", sets:3, reps:"12~15" },
+      { id:"p4", name:"밀리터리 프레스", sets:4, reps:"8~10" },
+      { id:"p5", name:"케이블 래터럴 레이즈", sets:3, reps:"15" },
+      { id:"p6", name:"트라이셉스 푸시다운", sets:3, reps:"12~15" },
+      { id:"p7", name:"오버헤드 트라이셉스 익스텐션", sets:3, reps:"12" },
+    ]},
+  수: { type:"crossfit", label:"CrossFit", color:"#C8FF00", textColor:"#000", gym:"CrossFit Magnum", icon:"⚡",
+    exercises:[
+      { id:"cf_w1", name:"Magnum Power 60", sets:1, reps:"60분", note:"10:00~11:00 / 18:30~19:30 / 21:00~22:00" },
+      { id:"cf_w2", name:"CrossFit WOD", sets:1, reps:"60분", note:"07:00~08:00 / 17:30~18:30 / 20:00~21:00" },
+    ]},
+  목: { type:"golf", label:"Golf Core", color:"#4ECDC4", textColor:"#000", gym:"홈짐", icon:"⛳",
+    exercises:[
+      { id:"g1", name:"케이블 로테이션 (스윙 모사)", sets:4, reps:"각 15회" },
+      { id:"g2", name:"팔로프 프레스 (Pallof Press)", sets:3, reps:"각 12회" },
+      { id:"g3", name:"루마니안 데드리프트", sets:3, reps:"12회" },
+      { id:"g4", name:"힙 힌지 + 로테이션", sets:3, reps:"10회" },
+      { id:"g5", name:"플랭크 바리에이션", sets:3, reps:"45초" },
+      { id:"g6", name:"사이드 플랭크", sets:3, reps:"30초" },
+      { id:"g7", name:"글루트 브릿지", sets:3, reps:"15회" },
+      { id:"g8", name:"흉추 회전 스트레칭", sets:1, reps:"5분" },
+    ]},
+  금: { type:"crossfit", label:"CrossFit", color:"#C8FF00", textColor:"#000", gym:"CrossFit Magnum", icon:"⚡",
+    exercises:[
+      { id:"cf_f1", name:"Oly / Strength / Skill", sets:1, reps:"30분", note:"06:30~07:00 / 17:00~17:30 / 19:30~20:00" },
+      { id:"cf_f2", name:"CrossFit WOD", sets:1, reps:"60분", note:"07:00~08:00 / 17:30~18:30 / 20:00~21:00" },
+    ]},
+  토: { type:"pull", label:"Pull Day", color:"#A78BFA", textColor:"#fff", gym:"홈짐", icon:"🦾",
+    exercises:[
+      { id:"pl1", name:"데드리프트", sets:4, reps:"6~8" },
+      { id:"pl2", name:"케이블 랫풀다운", sets:4, reps:"10~12" },
+      { id:"pl3", name:"바벨 로우", sets:3, reps:"10" },
+      { id:"pl4", name:"케이블 시티드 로우", sets:3, reps:"12" },
+      { id:"pl5", name:"페이스 풀", sets:3, reps:"15" },
+      { id:"pl6", name:"바벨 컬", sets:3, reps:"12" },
+      { id:"pl7", name:"해머 컬", sets:3, reps:"12" },
+    ]},
+  일: { type:"rest", label:"Rest & Recovery", color:"#6B7280", textColor:"#fff", gym:"휴식", icon:"😴",
+    exercises:[
+      { id:"r1", name:"폼롤러 전신 스트레칭", sets:1, reps:"15분" },
+      { id:"r2", name:"가벼운 산책", sets:1, reps:"30분" },
+    ]},
+};
+
+const FOODS = [
+  { name:"닭가슴살 큐브", cal:100, p:22, c:2, f:1 },
+  { name:"삶은달걀 1개", cal:70, p:6, c:0, f:5 },
+  { name:"그릭요거트", cal:120, p:15, c:8, f:3 },
+  { name:"참치캔 (소)", cal:90, p:20, c:0, f:1 },
+  { name:"단백질바", cal:200, p:20, c:20, f:6 },
+  { name:"현미 삼각김밥", cal:180, p:4, c:38, f:1 },
+  { name:"바나나", cal:90, p:1, c:23, f:0 },
+  { name:"두유 (무가당)", cal:90, p:7, c:8, f:3 },
+  { name:"셀렉스 단백질음료", cal:150, p:20, c:10, f:3 },
+  { name:"견과류 1봉", cal:180, p:5, c:8, f:15 },
+  { name:"닭가슴살 도시락", cal:350, p:38, c:30, f:6 },
+  { name:"통곡물 샌드위치", cal:280, p:14, c:42, f:7 },
+  { name:"하이뮨 단백질음료", cal:160, p:22, c:10, f:3 },
+  { name:"오트밀 컵", cal:140, p:5, c:28, f:2 },
+];
+
+const DAYS = ["월","화","수","목","금","토","일"];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+
+let selectedDay = getTodayDay();
+let expandedEx = {};
+let selectedFoods = [];
+
+function getTodayDay() {
+  return ["일","월","화","수","목","금","토"][new Date().getDay()];
+}
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function getWeekDates() {
+  const today = new Date();
+  const day = today.getDay();
+  const mon = new Date(today);
+  mon.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+  return DAYS.map((_, i) => {
+    const d = new Date(mon); d.setDate(mon.getDate() + i);
+    return `${d.getMonth()+1}/${d.getDate()}`;
+  });
+}
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+
+function load(k, fb) { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : fb; } catch { return fb; } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+let workoutLogs = load("wl2", {});
+let bodyLogs = load("bl2", {});
+let dietLogs = load("dl2", {});
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg || "✓ 저장됐어요!";
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+// ─── TAB SWITCH ──────────────────────────────────────────────────────────────
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab-panel").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".tabbar button").forEach((b, i) => {
+    b.className = ["workout","body","diet"][i] === tab ? "active" : "inactive";
+  });
+  document.getElementById("tab-" + tab).classList.add("active");
+  if (tab === "body") renderBody();
+  if (tab === "diet") renderDiet();
+}
+
+// ─── HEADER ──────────────────────────────────────────────────────────────────
+
+function renderHeader() {
+  const p = PLAN[getTodayDay()];
+  document.getElementById("today-day-label").textContent = getTodayDay() + "요일";
+  document.getElementById("today-icon").textContent = p.icon;
+  document.getElementById("today-icon").style.background = p.color;
+}
+
+// ─── WORKOUT ─────────────────────────────────────────────────────────────────
+
+function renderWorkout() {
+  renderDayScroll();
+  renderPlanCard();
+  renderExercises();
+}
+
+function renderDayScroll() {
+  const dates = getWeekDates();
+  const todayDay = getTodayDay();
+  const html = DAYS.map((d, i) => {
+    const p = PLAN[d];
+    const isSel = d === selectedDay;
+    const isToday = d === todayDay;
+    const bg = isSel ? p.color : "rgba(255,255,255,0.06)";
+    const col = isSel ? p.textColor : "#fff";
+    const bdr = !isSel && isToday ? `1px solid ${p.color}` : "1px solid transparent";
+    return `<button class="day-btn" onclick="selectDay('${d}')"
+      style="background:${bg};color:${col};border:${bdr};font-weight:${isSel?'700':'400'}">
+      <div class="day-name">${d}</div>
+      <div class="day-date">${dates[i]}</div>
+    </button>`;
+  }).join("");
+  document.getElementById("day-scroll").innerHTML = html;
+}
+
+function selectDay(d) {
+  selectedDay = d;
+  expandedEx = {};
+  renderWorkout();
+}
+
+function renderPlanCard() {
+  const p = PLAN[selectedDay];
+  const logKey = getTodayKey() + "_" + selectedDay;
+  const dayLog = workoutLogs[logKey] || {};
+  const done = p.exercises.filter(ex => dayLog[ex.id]?.done).length;
+  const pct = Math.round((done / p.exercises.length) * 100);
+
+  document.getElementById("plan-card").innerHTML = `
+    <div class="plan-card">
+      <div class="plan-card-top">
+        <div>
+          <span class="badge" style="background:${p.color};color:${p.textColor}">${p.label}</span>
+          <span class="gym-name">${p.gym}</span>
+        </div>
+        <div>
+          <div class="prog-num" style="color:${p.color}">${pct}%</div>
+          <div class="prog-sub">${done}/${p.exercises.length}</div>
+        </div>
+      </div>
+      <div class="prog-bar-bg"><div class="prog-bar" style="width:${pct}%;background:${p.color}"></div></div>
+    </div>`;
+}
+
+function renderExercises() {
+  const p = PLAN[selectedDay];
+  const logKey = getTodayKey() + "_" + selectedDay;
+  const dayLog = workoutLogs[logKey] || {};
+
+  let html = "";
+
+  if (p.type === "golf") {
+    html += `<div class="golf-note">⛳ 골프 스윙스피드 향상 포인트: 회전력 + 코어 안정성 + 고관절 가동성 집중!</div>`;
+  }
+
+  p.exercises.forEach(ex => {
+    const log = dayLog[ex.id] || {};
+    const isDone = log.done || false;
+    const isExp = expandedEx[ex.id] || false;
+
+    html += `
+    <div class="ex-row ${isDone ? 'done' : ''}" id="row-${ex.id}">
+      <div class="ex-header" onclick="toggleEx('${ex.id}')">
+        <div class="check-box ${isDone ? 'checked' : ''}" onclick="event.stopPropagation();toggleDone('${ex.id}')">
+          ${isDone ? '<span class="check-mark">✓</span>' : ''}
+        </div>
+        <div style="flex:1">
+          <div class="ex-name ${isDone ? 'done-text' : ''}">${ex.name}</div>
+          <div class="ex-meta">${ex.sets}세트 × ${ex.reps}${ex.note ? ' · ' + ex.note : ''}</div>
+        </div>
+        <span class="ex-arrow">${isExp ? '▲' : '▼'}</span>
+      </div>
+      <div class="ex-detail ${isExp ? 'open' : ''}">
+        <div class="detail-grid">
+          <div><div class="detail-label">무게 (kg)</div>
+            <input type="number" placeholder="0" value="${log.weight||''}" onchange="updateExField('${ex.id}','weight',this.value)"></div>
+          <div><div class="detail-label">완료 세트</div>
+            <input type="number" placeholder="${ex.sets}" value="${log.sets||''}" onchange="updateExField('${ex.id}','sets',this.value)"></div>
+        </div>
+        <div style="margin-top:8px">
+          <div class="detail-label">메모</div>
+          <textarea rows="2" placeholder="메모..." onchange="updateExField('${ex.id}','memo',this.value)">${log.memo||''}</textarea>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById("exercise-list").innerHTML = html;
+
+  // WOD section
+  if (p.type === "crossfit") {
+    const wodVal = (workoutLogs[logKey] || {}).wodMemo || "";
+    document.getElementById("wod-section").innerHTML = `
+      <div class="wod-memo">
+        <div class="wod-label">📝 오늘의 WOD 기록 (시간 / 라운드 / 퍼포먼스)</div>
+        <textarea rows="4" placeholder="예) 'Fran' 4:32 / 21-15-9 Thruster 95lb + Pull-up..." onchange="saveWodMemo(this.value)">${wodVal}</textarea>
+      </div>`;
+  } else {
+    document.getElementById("wod-section").innerHTML = "";
+  }
+}
+
+function toggleEx(id) {
+  expandedEx[id] = !expandedEx[id];
+  renderExercises();
+}
+
+function toggleDone(id) {
+  const logKey = getTodayKey() + "_" + selectedDay;
+  const dayLog = workoutLogs[logKey] || {};
+  const cur = dayLog[id] || {};
+  const updated = { ...workoutLogs, [logKey]: { ...dayLog, [id]: { ...cur, done: !cur.done } } };
+  workoutLogs = updated;
+  save("wl2", workoutLogs);
+  renderPlanCard();
+  renderExercises();
+}
+
+function updateExField(id, field, val) {
+  const logKey = getTodayKey() + "_" + selectedDay;
+  const dayLog = workoutLogs[logKey] || {};
+  const cur = dayLog[id] || {};
+  const updated = { ...workoutLogs, [logKey]: { ...dayLog, [id]: { ...cur, [field]: val } } };
+  workoutLogs = updated;
+  save("wl2", workoutLogs);
+}
+
+function saveWodMemo(val) {
+  const logKey = getTodayKey() + "_" + selectedDay;
+  const dayLog = workoutLogs[logKey] || {};
+  workoutLogs = { ...workoutLogs, [logKey]: { ...dayLog, wodMemo: val } };
+  save("wl2", workoutLogs);
+}
+
+// ─── BODY ─────────────────────────────────────────────────────────────────────
+
+function renderBody() {
+  document.getElementById("body-date").textContent = getTodayKey();
+  const logs = Object.values(bodyLogs).sort((a, b) => (b.date||"").localeCompare(a.date||""));
+  const latest = logs[0];
+  const targets = { weight: 74, fat: 13, muscle: 60 };
+  const fields = [
+    { label:"체중", key:"weight", unit:"kg", color:"#C8FF00" },
+    { label:"체지방률", key:"fat", unit:"%", color:"#FF6B35" },
+    { label:"근육량", key:"muscle", unit:"kg", color:"#4ECDC4" },
+  ];
+
+  document.getElementById("body-stats").innerHTML = fields.map(f => `
+    <div class="stat-card">
+      <div class="stat-label">${f.label}</div>
+      <div class="stat-val" style="color:${f.color}">${latest?.[f.key] || "—"}</div>
+      <div class="stat-unit">${f.unit} · 목표 ${targets[f.key]}${f.unit}</div>
+    </div>`).join("");
+
+  document.getElementById("body-history").innerHTML = logs.length === 0
+    ? '<div style="color:#555;font-size:13px">아직 기록이 없어요.</div>'
+    : logs.slice(0, 15).map(log => `
+      <div class="hist-item">
+        <div class="hist-date">${log.date}</div>
+        <div class="hist-vals">
+          <span style="color:#C8FF00;font-size:14px;font-weight:700">${log.weight}kg</span>
+          <span style="color:#FF6B35;font-size:13px">${log.fat}%</span>
+          <span style="color:#4ECDC4;font-size:13px">${log.muscle}kg</span>
+        </div>
+      </div>`).join("");
+}
+
+function saveBodyLog() {
+  const weight = document.getElementById("inp-weight").value;
+  const fat = document.getElementById("inp-fat").value;
+  const muscle = document.getElementById("inp-muscle").value;
+  const note = document.getElementById("inp-body-note").value;
+  if (!weight && !fat && !muscle) { showToast("⚠️ 값을 입력해주세요"); return; }
+  const key = getTodayKey();
+  bodyLogs = { ...bodyLogs, [key]: { date: key, weight, fat, muscle, note } };
+  save("bl2", bodyLogs);
+  renderBody();
+  showToast("✓ 인바디 기록 저장!");
+}
+
+// ─── DIET ─────────────────────────────────────────────────────────────────────
+
+function calcTotals() {
+  const key = getTodayKey();
+  const items = (dietLogs[key] || {}).items || [];
+  return items.reduce((acc, f) => ({ cal: acc.cal + (f.cal||0), p: acc.p + (f.p||0), c: acc.c + (f.c||0), f: acc.f + (f.f||0) }), { cal:0, p:0, c:0, f:0 });
+}
+
+function renderDiet() {
+  const key = getTodayKey();
+  document.getElementById("diet-date").textContent = key;
+
+  const t = calcTotals();
+  const macros = [
+    { label:"칼로리", val:t.cal, goal:2900, unit:"kcal", color:"#FF6B35" },
+    { label:"단백질", val:t.p, goal:150, unit:"g", color:"#C8FF00" },
+    { label:"탄수화물", val:t.c, goal:320, unit:"g", color:"#4ECDC4" },
+    { label:"지방", val:t.f, goal:75, unit:"g", color:"#A78BFA" },
+  ];
+  document.getElementById("macro-display").innerHTML = macros.map(m => `
+    <div class="macro-card">
+      <div class="macro-row">
+        <span class="macro-label">${m.label}</span>
+        <span class="macro-val" style="color:${m.color}">${m.val}${m.unit}</span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${Math.min((m.val/m.goal)*100,100)}%;background:${m.color}"></div></div>
+      <div class="macro-goal">목표 ${m.goal}${m.unit}</div>
+    </div>`).join("");
+
+  // Food chips
+  document.getElementById("food-chips").innerHTML = FOODS.map(f => {
+    const isSel = selectedFoods.includes(f.name);
+    return `<button class="food-chip" onclick="toggleFood('${f.name}')"
+      style="background:${isSel ? '#C8FF00' : 'rgba(255,255,255,0.07)'};color:${isSel ? '#000' : '#ccc'};font-weight:${isSel ? '700' : '400'}">
+      ${f.name}
+    </button>`;
+  }).join("");
+
+  const saveBtn = document.getElementById("diet-save-btn");
+  saveBtn.style.display = selectedFoods.length > 0 ? "block" : "none";
+  if (selectedFoods.length > 0) saveBtn.textContent = `${selectedFoods.length}개 추가하기`;
+
+  // Today items
+  const items = (dietLogs[key] || {}).items || [];
+  document.getElementById("diet-today-items").innerHTML = items.length === 0 ? "" : `
+    <div class="sec-title">오늘 먹은 것 (${items.length}가지)</div>
+    ${items.map(f => `
+      <div class="diet-item">
+        <span class="diet-item-name">${f.name}</span>
+        <span class="diet-item-stats" style="color:#C8FF00">P ${f.p}g · ${f.cal}kcal</span>
+      </div>`).join("")}`;
+}
+
+function toggleFood(name) {
+  if (selectedFoods.includes(name)) {
+    selectedFoods = selectedFoods.filter(n => n !== name);
+  } else {
+    selectedFoods.push(name);
+  }
+  renderDiet();
+}
+
+function saveDietItems() {
+  const key = getTodayKey();
+  const existing = (dietLogs[key] || {}).items || [];
+  const toAdd = selectedFoods.map(n => FOODS.find(f => f.name === n)).filter(Boolean);
+  dietLogs = { ...dietLogs, [key]: { items: [...existing, ...toAdd] } };
+  save("dl2", dietLogs);
+  selectedFoods = [];
+  renderDiet();
+  showToast(`✓ ${toAdd.length}개 식품 추가!`);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+renderHeader();
+renderWorkout();
+</script>
+</body>
+</html>
