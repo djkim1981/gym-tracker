@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<!-- saved from url=(0043)file:///C:/Users/akdon/Downloads/index.html -->
-<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>내 트레이닝</title>
-<script src="./index_files/firebase-app-compat.js.다운로드"></script>
-<script src="./index_files/firebase-firestore-compat.js.다운로드"></script>
-<script src="./index_files/firebase-auth-compat.js.다운로드"></script>
-<link href="./index_files/css2" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { background: #0A0A0A; color: #fff; font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; max-width: 500px; margin: 0 auto; padding-bottom: 90px; }
@@ -127,14 +127,14 @@
   <div class="header-top">
     <div>
       <div class="header-sub">CROSSFIT MAGNUM × 홈짐</div>
-      <div class="header-title" id="main-title">내 트레이닝 <span id="today-day-label" style="color:#C8FF00">화요일</span></div>
+      <div class="header-title" id="main-title">내 트레이닝 <span id="today-day-label" style="color:#C8FF00"></span></div>
     </div>
-    <div class="header-icon" id="today-icon" style="background: rgb(255, 107, 53);">💪</div>
+    <div class="header-icon" id="today-icon" style="background:#C8FF00"></div>
   </div>
   <div class="tabbar">
-    <button class="active" onclick="switchTab(&#39;workout&#39;)">🏋️ 운동</button>
-    <button class="inactive" onclick="switchTab(&#39;body&#39;)">📊 인바디</button>
-    <button class="inactive" onclick="switchTab(&#39;diet&#39;)">🍱 식단</button>
+    <button class="active" onclick="switchTab('workout')">🏋️ 운동</button>
+    <button class="inactive" onclick="switchTab('body')">📊 인바디</button>
+    <button class="inactive" onclick="switchTab('diet')">🍱 식단</button>
   </div>
 </div>
 
@@ -142,211 +142,9 @@
 
   <!-- ── WORKOUT TAB ── -->
   <div id="tab-workout" class="tab-panel active">
-    <div class="day-scroll" id="day-scroll"><button class="day-btn" onclick="selectDay(&#39;월&#39;)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid transparent;font-weight:400">
-      <div class="day-name">월</div>
-      <div class="day-date">6/1</div>
-    </button><button class="day-btn" onclick="selectDay(&#39;화&#39;)" style="background:#FF6B35;color:#fff;border:1px solid transparent;font-weight:700">
-      <div class="day-name">화</div>
-      <div class="day-date">6/2</div>
-    </button><button class="day-btn" onclick="selectDay(&#39;수&#39;)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid transparent;font-weight:400">
-      <div class="day-name">수</div>
-      <div class="day-date">6/3</div>
-    </button><button class="day-btn" onclick="selectDay(&#39;목&#39;)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid transparent;font-weight:400">
-      <div class="day-name">목</div>
-      <div class="day-date">6/4</div>
-    </button><button class="day-btn" onclick="selectDay(&#39;금&#39;)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid transparent;font-weight:400">
-      <div class="day-name">금</div>
-      <div class="day-date">6/5</div>
-    </button><button class="day-btn" onclick="selectDay(&#39;토&#39;)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid transparent;font-weight:400">
-      <div class="day-name">토</div>
-      <div class="day-date">6/6</div>
-    </button><button class="day-btn" onclick="selectDay(&#39;일&#39;)" style="background:rgba(255,255,255,0.06);color:#fff;border:1px solid transparent;font-weight:400">
-      <div class="day-name">일</div>
-      <div class="day-date">6/7</div>
-    </button></div>
-    <div id="plan-card">
-    <div class="plan-card">
-      <div class="plan-card-top">
-        <div>
-          <span class="badge" style="background:#FF6B35;color:#fff">Push Day</span>
-          <span class="gym-name">홈짐</span>
-        </div>
-        <div>
-          <div class="prog-num" style="color:#FF6B35">0%</div>
-          <div class="prog-sub">0/7</div>
-        </div>
-      </div>
-      <div class="prog-bar-bg"><div class="prog-bar" style="width:0%;background:#FF6B35"></div></div>
-    </div></div>
-    <div id="exercise-list">
-    <div class="ex-row " id="row-p1">
-      <div class="ex-header" onclick="toggleEx(&#39;p1&#39;)">
-        <div class="check-box " onclick="event.stopPropagation();toggleDone(&#39;p1&#39;)">
-          
-        </div>
-        <div style="flex:1">
-          <div class="ex-name ">바벨 벤치프레스 (스미스)</div>
-          <div class="ex-meta">4세트 × 8~10</div>
-        </div>
-        <span class="ex-arrow">▼</span>
-      </div>
-      <div class="ex-detail ">
-        <div class="detail-grid">
-          <div><div class="detail-label">무게 (kg)</div>
-            <input type="number" placeholder="0" value="" onchange="updateExField(&#39;p1&#39;,&#39;weight&#39;,this.value)"></div>
-          <div><div class="detail-label">완료 세트</div>
-            <input type="number" placeholder="4" value="" onchange="updateExField(&#39;p1&#39;,&#39;sets&#39;,this.value)"></div>
-        </div>
-        <div style="margin-top:8px">
-          <div class="detail-label">메모</div>
-          <textarea rows="2" placeholder="메모..." onchange="updateExField(&#39;p1&#39;,&#39;memo&#39;,this.value)"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="ex-row " id="row-p2">
-      <div class="ex-header" onclick="toggleEx(&#39;p2&#39;)">
-        <div class="check-box " onclick="event.stopPropagation();toggleDone(&#39;p2&#39;)">
-          
-        </div>
-        <div style="flex:1">
-          <div class="ex-name ">인클라인 덤벨 프레스</div>
-          <div class="ex-meta">3세트 × 10~12</div>
-        </div>
-        <span class="ex-arrow">▼</span>
-      </div>
-      <div class="ex-detail ">
-        <div class="detail-grid">
-          <div><div class="detail-label">무게 (kg)</div>
-            <input type="number" placeholder="0" value="" onchange="updateExField(&#39;p2&#39;,&#39;weight&#39;,this.value)"></div>
-          <div><div class="detail-label">완료 세트</div>
-            <input type="number" placeholder="3" value="" onchange="updateExField(&#39;p2&#39;,&#39;sets&#39;,this.value)"></div>
-        </div>
-        <div style="margin-top:8px">
-          <div class="detail-label">메모</div>
-          <textarea rows="2" placeholder="메모..." onchange="updateExField(&#39;p2&#39;,&#39;memo&#39;,this.value)"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="ex-row " id="row-p3">
-      <div class="ex-header" onclick="toggleEx(&#39;p3&#39;)">
-        <div class="check-box " onclick="event.stopPropagation();toggleDone(&#39;p3&#39;)">
-          
-        </div>
-        <div style="flex:1">
-          <div class="ex-name ">케이블 플라이 (상부)</div>
-          <div class="ex-meta">3세트 × 12~15</div>
-        </div>
-        <span class="ex-arrow">▼</span>
-      </div>
-      <div class="ex-detail ">
-        <div class="detail-grid">
-          <div><div class="detail-label">무게 (kg)</div>
-            <input type="number" placeholder="0" value="" onchange="updateExField(&#39;p3&#39;,&#39;weight&#39;,this.value)"></div>
-          <div><div class="detail-label">완료 세트</div>
-            <input type="number" placeholder="3" value="" onchange="updateExField(&#39;p3&#39;,&#39;sets&#39;,this.value)"></div>
-        </div>
-        <div style="margin-top:8px">
-          <div class="detail-label">메모</div>
-          <textarea rows="2" placeholder="메모..." onchange="updateExField(&#39;p3&#39;,&#39;memo&#39;,this.value)"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="ex-row " id="row-p4">
-      <div class="ex-header" onclick="toggleEx(&#39;p4&#39;)">
-        <div class="check-box " onclick="event.stopPropagation();toggleDone(&#39;p4&#39;)">
-          
-        </div>
-        <div style="flex:1">
-          <div class="ex-name ">밀리터리 프레스</div>
-          <div class="ex-meta">4세트 × 8~10</div>
-        </div>
-        <span class="ex-arrow">▼</span>
-      </div>
-      <div class="ex-detail ">
-        <div class="detail-grid">
-          <div><div class="detail-label">무게 (kg)</div>
-            <input type="number" placeholder="0" value="" onchange="updateExField(&#39;p4&#39;,&#39;weight&#39;,this.value)"></div>
-          <div><div class="detail-label">완료 세트</div>
-            <input type="number" placeholder="4" value="" onchange="updateExField(&#39;p4&#39;,&#39;sets&#39;,this.value)"></div>
-        </div>
-        <div style="margin-top:8px">
-          <div class="detail-label">메모</div>
-          <textarea rows="2" placeholder="메모..." onchange="updateExField(&#39;p4&#39;,&#39;memo&#39;,this.value)"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="ex-row " id="row-p5">
-      <div class="ex-header" onclick="toggleEx(&#39;p5&#39;)">
-        <div class="check-box " onclick="event.stopPropagation();toggleDone(&#39;p5&#39;)">
-          
-        </div>
-        <div style="flex:1">
-          <div class="ex-name ">케이블 래터럴 레이즈</div>
-          <div class="ex-meta">3세트 × 15</div>
-        </div>
-        <span class="ex-arrow">▼</span>
-      </div>
-      <div class="ex-detail ">
-        <div class="detail-grid">
-          <div><div class="detail-label">무게 (kg)</div>
-            <input type="number" placeholder="0" value="" onchange="updateExField(&#39;p5&#39;,&#39;weight&#39;,this.value)"></div>
-          <div><div class="detail-label">완료 세트</div>
-            <input type="number" placeholder="3" value="" onchange="updateExField(&#39;p5&#39;,&#39;sets&#39;,this.value)"></div>
-        </div>
-        <div style="margin-top:8px">
-          <div class="detail-label">메모</div>
-          <textarea rows="2" placeholder="메모..." onchange="updateExField(&#39;p5&#39;,&#39;memo&#39;,this.value)"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="ex-row " id="row-p6">
-      <div class="ex-header" onclick="toggleEx(&#39;p6&#39;)">
-        <div class="check-box " onclick="event.stopPropagation();toggleDone(&#39;p6&#39;)">
-          
-        </div>
-        <div style="flex:1">
-          <div class="ex-name ">트라이셉스 푸시다운</div>
-          <div class="ex-meta">3세트 × 12~15</div>
-        </div>
-        <span class="ex-arrow">▼</span>
-      </div>
-      <div class="ex-detail ">
-        <div class="detail-grid">
-          <div><div class="detail-label">무게 (kg)</div>
-            <input type="number" placeholder="0" value="" onchange="updateExField(&#39;p6&#39;,&#39;weight&#39;,this.value)"></div>
-          <div><div class="detail-label">완료 세트</div>
-            <input type="number" placeholder="3" value="" onchange="updateExField(&#39;p6&#39;,&#39;sets&#39;,this.value)"></div>
-        </div>
-        <div style="margin-top:8px">
-          <div class="detail-label">메모</div>
-          <textarea rows="2" placeholder="메모..." onchange="updateExField(&#39;p6&#39;,&#39;memo&#39;,this.value)"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="ex-row " id="row-p7">
-      <div class="ex-header" onclick="toggleEx(&#39;p7&#39;)">
-        <div class="check-box " onclick="event.stopPropagation();toggleDone(&#39;p7&#39;)">
-          
-        </div>
-        <div style="flex:1">
-          <div class="ex-name ">오버헤드 트라이셉스 익스텐션</div>
-          <div class="ex-meta">3세트 × 12</div>
-        </div>
-        <span class="ex-arrow">▼</span>
-      </div>
-      <div class="ex-detail ">
-        <div class="detail-grid">
-          <div><div class="detail-label">무게 (kg)</div>
-            <input type="number" placeholder="0" value="" onchange="updateExField(&#39;p7&#39;,&#39;weight&#39;,this.value)"></div>
-          <div><div class="detail-label">완료 세트</div>
-            <input type="number" placeholder="3" value="" onchange="updateExField(&#39;p7&#39;,&#39;sets&#39;,this.value)"></div>
-        </div>
-        <div style="margin-top:8px">
-          <div class="detail-label">메모</div>
-          <textarea rows="2" placeholder="메모..." onchange="updateExField(&#39;p7&#39;,&#39;memo&#39;,this.value)"></textarea>
-        </div>
-      </div>
-    </div></div>
+    <div class="day-scroll" id="day-scroll"></div>
+    <div id="plan-card"></div>
+    <div id="exercise-list"></div>
     <div id="wod-section"></div>
   </div>
 
@@ -872,8 +670,5 @@ firebase.auth().onAuthStateChanged(async (user) => {
 renderHeader();
 renderWorkout();
 </script>
-
-
-<div id="sync-status" style="position: fixed; bottom: 10px; right: 10px; z-index: 999; display: flex; align-items: center; gap: 8px;"><button onclick="signInWithGoogle()" style="background:#fff;color:#000;border:none;border-radius:20px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:&#39;Noto Sans KR&#39;,sans-serif;font-weight:700;">
-      🔄 Google로 동기화
-    </button></div></body></html>
+</body>
+</html>
